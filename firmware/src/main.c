@@ -63,16 +63,16 @@
 #define BUZ_IDX      30
 #define BUZ_IDX_MASK (1 << BUZ_IDX)
 
-
 typedef struct{
 	int tempo;
 	int wholenote;
 	int notes;
-	int melody[1000];
-	} music;
+	int melody[];
+} music;
 
 void tone(int freq, int time){
-	int n = (double) freq * ((double) time/1000);
+	// a freq tá em segundos e time em ms
+	int n = (double) freq * ((double) time/100);
 	float T = (1.0/freq) * 1E6; //ms
 	
 	for (int i = 0; i <= n; i++){
@@ -83,100 +83,106 @@ void tone(int freq, int time){
 	}
 }
 
+void play_music(music *musica){
+	for (int thisNote = 0; thisNote < ((*musica).notes)*2; thisNote = thisNote + 2) {
+		// calculates the duration of each note
+		int divider = (*musica).melody[thisNote + 1];
+		
+		int noteDuration = ((*musica).wholenote) / abs(divider);
+		if (divider < 0) {
+			noteDuration *= 1.5; // increases the duration in half for dotted notes
+		}
+		
+		if ((*musica).melody[thisNote] == 0){
+			// Wait for the specief duration before playing the next note.
+			delay_ms(noteDuration);
+		}
+		else{
+			// we only play the note for 90% of the duration, leaving 10% as a pause
+			tone((*musica).melody[thisNote], noteDuration * 0.9);
+			
+			// Wait for the specief duration before playing the next note.
+			delay_ms(noteDuration);
+		}
+		
+	}
+	
+}
+
+
 void io_init(void){
 	pmc_enable_periph_clk(BUZ_PIO_ID);
 	pio_configure(BUZ_PIO, PIO_OUTPUT_0, BUZ_IDX_MASK, PIO_DEFAULT);
 
 }
 
-void play_music(music *musica){
-	for (int thisNote = 0; thisNote < ((*musica).notes)*2; thisNote = thisNote + 2) {
-		// calculates the duration of each note
-		int divider = (*musica).melody[thisNote + 1];
-			
-		int noteDuration = ((*musica).wholenote) / abs(divider);
-		if (divider < 0) {
-			noteDuration *= 1.5; // increases the duration in half for dotted notes
-		}
-			
-		if ((*musica).melody[thisNote] == 0){
-			// Wait for the specief duration before playing the next note.
-			delay_us(noteDuration);
-		}
-		else{
-			// we only play the note for 90% of the duration, leaving 10% as a pause
-			tone((*musica).melody[thisNote], noteDuration * 0.9);
-				
-			// Wait for the specief duration before playing the next note.
-			delay_us(noteDuration);
-		}
-			
-	}
-		
-}
-
 
 int main (void)
 {
 	board_init();
-	io_init();
-
 	sysclk_init();
 	delay_init();
+
+	io_init();
 
   // Init OLED
 	gfx_mono_ssd1306_init();
 	
-	music *starwars;
-	music *nokia;
-	
-	music starwarsProperties;
-	starwars = &starwarsProperties;
-		
-	music nokiaProperties;
-	nokia = &nokiaProperties;
-	
-	(*starwars).tempo = 108;
-	(*starwars).melody[1000] = melody_starwars;
-	(*starwars).wholenote = (6000 * 4)/((*starwars).tempo);
-	(*starwars).notes = sizeof(melody_starwars) / sizeof(melody_starwars[0]) / 2;
+	/* Disable the watchdog */
 
-	int tempo = 108;
-	int wholenote = (6000 * 4)/tempo;
-	int notes = sizeof(melody_starwars) / sizeof(melody_starwars[0]) / 2;
+	WDT->WDT_MR = WDT_MR_WDDIS;
 
-	(*nokia).tempo = 180;
-	(*nokia).melody[1000] = melody_nokia;
-	(*nokia).wholenote = (6000 * 4)/((*nokia).tempo);
-	(*nokia).notes = sizeof((*nokia).melody) / sizeof((*nokia).melody[0]) / 2;
 	
+
+	int tempo_starwars = 108;
+	int notes_starwars = sizeof(melody_starwars) / sizeof(melody_starwars[0]) / 2;
+	int wholenote_starwars = (6000 * 4)/tempo_starwars; // está em ms
+
+	//music *starwars;
+	//music *nokia;
+	//
+	//music starwarsProperties;
+	//starwars = &starwarsProperties;
+	//
+	//music nokiaProperties;
+	//nokia = &nokiaProperties;
+	//
+	//(*starwars).tempo = 108;
+	//(*starwars).melody[] = melody_starwars;
+	//(*starwars).wholenote = (6000 * 4)/((*starwars).tempo);
+	//(*starwars).notes = sizeof(melody_starwars) / sizeof(melody_starwars[0]) / 2;
+
 
 	
   /* Insert application code here, after the board has been initialized. */
 	while(1){
 		//play_music(starwars);
-		
-		for (int thisNote = 0; thisNote < notes*2; thisNote = thisNote + 2) {
+		for (int thisNote = 0; thisNote < notes_starwars*2; thisNote = thisNote + 2) {
 			// calculates the duration of each note
 			int divider = melody_starwars[thisNote + 1];
-			
-			int noteDuration = (wholenote) / abs(divider);
+			int noteDuration = (wholenote_starwars) / abs(divider);
 			if (divider < 0) {
 				noteDuration *= 1.5; // increases the duration in half for dotted notes
 			}
-			
+				
 			if (melody_starwars[thisNote] == 0){
 				// Wait for the specief duration before playing the next note.
-				delay_us(noteDuration);
+				delay_ms(noteDuration);
 			}
 			else{
 				// we only play the note for 90% of the duration, leaving 10% as a pause
 				tone(melody_starwars[thisNote], noteDuration * 0.9);
-				
+					
+
 				// Wait for the specief duration before playing the next note.
-				delay_us(noteDuration);
+				delay_ms(noteDuration);
 			}
 			
 		}
+		
+		//play_music(starwars);
+
+		
 	}
+
 }
