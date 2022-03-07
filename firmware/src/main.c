@@ -81,47 +81,50 @@ void but_callback(void)
 
 void tone(int freq, int time){
 	// a freq tá em segundos e time em ms
-	int n = (double) freq * ((double) time/100);
-	float T = (1.0/freq) * 1E6; //ms
+		int n = (double) freq * ((double) time/100);
+		float T = (1.0/freq) * 1E6; //ms
 	
-	for (int i = 0; i <= n; i++){
-		pio_set(BUZ_PIO, BUZ_IDX_MASK);
-		delay_us(T/2);
-		pio_clear(BUZ_PIO, BUZ_IDX_MASK);
-		delay_us(T/2);
-	}
+		for (int i = 0; i <= n;){
+			if(tocando){
+				pio_set(BUZ_PIO, BUZ_IDX_MASK);
+				delay_us(T/2);
+				pio_clear(BUZ_PIO, BUZ_IDX_MASK);
+				delay_us(T/2);
+				i++;
+				if (!pio_get(BUT1_PIO, PIO_INPUT, BUT1_PIO_IDX_MASK)){
+					tocando = 0;
+					delay_ms(200);
+				}
+			}
+			if (!pio_get(BUT1_PIO, PIO_INPUT, BUT1_PIO_IDX_MASK)){
+				tocando = 1;
+				delay_ms(200);
+			}
+		}
 }
 
 void play_music(music *musica){
-	if (tocando){
-		for (int thisNote = 0; thisNote < ((*musica).notes)*2; thisNote = thisNote + 2) {
-			if (!pio_get(BUT1_PIO, PIO_INPUT, BUT1_PIO_IDX_MASK) && tocando == 1){
-				tocando = 0;
-				delay_ms(200);
-				break;
-			}
-			// calculates the duration of each note
-			int divider = (*musica).melody[thisNote + 1];
+	for (int thisNote = 0; thisNote < ((*musica).notes)*2; thisNote = thisNote + 2) {
+		// calculates the duration of each note
+		int divider = (*musica).melody[thisNote + 1];
 			
-			int noteDuration = ((*musica).wholenote) / abs(divider);
-			if (divider < 0) {
-				noteDuration *= 1.5; // increases the duration in half for dotted notes
-			}
-			
-			if ((*musica).melody[thisNote] == 0){
-				// Wait for the specief duration before playing the next note.
-				delay_ms(noteDuration);
-			}
-			else{
-				// we only play the note for 90% of the duration, leaving 10% as a pause
-				tone((*musica).melody[thisNote], noteDuration * 0.9);
-				
-				// Wait for the specief duration before playing the next note.
-				delay_ms(10);
-			}
-			
+		int noteDuration = ((*musica).wholenote) / abs(divider);
+		if (divider < 0) {
+			noteDuration *= 1.5; // increases the duration in half for dotted notes
 		}
-		
+			
+		if ((*musica).melody[thisNote] == 0){
+			// Wait for the specief duration before playing the next note.
+			delay_ms(noteDuration);
+		}
+		else{
+			// we only play the note for 90% of the duration, leaving 10% as a pause
+			tone((*musica).melody[thisNote], noteDuration * 0.9);
+				
+			// Wait for the specief duration before playing the next note.
+			delay_ms(10);
+		}
+			
 	}
 	
 }
@@ -235,11 +238,7 @@ int main (void)
 	tocando = 0;
   /* Insert application code here, after the board has been initialized. */
 	while(1){	
-		if (!pio_get(BUT1_PIO, PIO_INPUT, BUT1_PIO_IDX_MASK) && tocando == 0){
-			tocando = 1;
-			delay_ms(200);
-			play_music(&starwars);
-		} 
+		play_music(&starwars);
 				
 	}
 		
