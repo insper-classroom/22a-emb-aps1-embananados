@@ -65,6 +65,7 @@
 
 volatile char but_flag; 
 volatile int tocando;
+volatile int mudar;
 
 typedef struct{
 	int tempo;
@@ -79,31 +80,57 @@ void but_callback(void)
 	
 }
 
-void tone(int freq, int time){
+void tone(int freq, int time, int *num){
 	// a freq tá em segundos e time em ms
-		int n = (double) freq * ((double) time/100);
-		float T = (1.0/freq) * 1E6; //ms
+	int n = (double) freq * ((double) time/100);
+	float T = (1.0/freq) * 1E6; //ms
 	
-		for (int i = 0; i <= n;){
-			if(tocando){
-				pio_set(BUZ_PIO, BUZ_IDX_MASK);
-				delay_us(T/2);
-				pio_clear(BUZ_PIO, BUZ_IDX_MASK);
-				delay_us(T/2);
-				i++;
-				if (!pio_get(BUT1_PIO, PIO_INPUT, BUT1_PIO_IDX_MASK)){
-					tocando = 0;
-					delay_ms(200);
-				}
-			}
+	for (int i = 0; i <= n;){
+		if(tocando && !mudar){
+			pio_set(BUZ_PIO, BUZ_IDX_MASK);
+			delay_us(T/2);
+			pio_clear(BUZ_PIO, BUZ_IDX_MASK);
+			delay_us(T/2);
+			i++;
 			if (!pio_get(BUT1_PIO, PIO_INPUT, BUT1_PIO_IDX_MASK)){
-				tocando = 1;
+				tocando = 0;
 				delay_ms(200);
 			}
 		}
+		if (!pio_get(BUT1_PIO, PIO_INPUT, BUT1_PIO_IDX_MASK)){
+			tocando = 1;
+			delay_ms(200);
+		}
+		if (!pio_get(BUT2_PIO, PIO_INPUT, BUT2_PIO_IDX_MASK)){
+			mudar = 1;
+			if(*num < 1){
+				*num = *num + 1;
+			}
+			else{
+				*num = *num - 1;
+			}
+			delay_ms(200);
+		}
+		if(*num == 0){
+			pio_clear(LED1_PIO, LED1_PIO_IDX_MASK);
+			pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
+			pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
+		}
+		else if(*num ==1){
+			pio_set(LED1_PIO, LED1_PIO_IDX_MASK);
+			pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
+			pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
+		}
+		if(tocando && mudar){
+			break;
+		}
+	}
+	if(mudar){
+		return;
+	}
 }
 
-void play_music(music *musica){
+void play_music(music *musica, int *num){
 	for (int thisNote = 0; thisNote < ((*musica).notes)*2; thisNote = thisNote + 2) {
 		// calculates the duration of each note
 		int divider = (*musica).melody[thisNote + 1];
@@ -119,7 +146,10 @@ void play_music(music *musica){
 		}
 		else{
 			// we only play the note for 90% of the duration, leaving 10% as a pause
-			tone((*musica).melody[thisNote], noteDuration * 0.9);
+			tone((*musica).melody[thisNote], noteDuration * 0.9, num);
+			if (mudar){
+				return;
+			}
 				
 			// Wait for the specief duration before playing the next note.
 			delay_ms(10);
@@ -135,8 +165,14 @@ void io_init(void)
 	pio_configure(BUZ_PIO, PIO_OUTPUT_0, BUZ_IDX_MASK, PIO_DEFAULT);
 
 	// Configura led
+	pmc_enable_periph_clk(LED1_PIO_ID);
+	pio_configure(LED1_PIO, PIO_OUTPUT_0, LED1_PIO_IDX_MASK, PIO_DEFAULT);
+	
 	pmc_enable_periph_clk(LED2_PIO_ID);
 	pio_configure(LED2_PIO, PIO_OUTPUT_0, LED2_PIO_IDX_MASK, PIO_DEFAULT);
+	
+	pmc_enable_periph_clk(LED3_PIO_ID);
+	pio_configure(LED3_PIO, PIO_OUTPUT_0, LED3_PIO_IDX_MASK, PIO_DEFAULT);
 
 	// Inicializa clock do periférico PIO responsavel pelo botao
 	pmc_enable_periph_clk(BUT1_PIO_ID);
@@ -214,15 +250,16 @@ int main (void)
 
 	WDT->WDT_MR = WDT_MR_WDDIS;
 
-	
-
-	int tempo_starwars = 108;
-	int notes_starwars = sizeof(melody_starwars) / sizeof(melody_starwars[0]) / 2;
-	int wholenote_starwars = (6000 * 4)/tempo_starwars; // está em ms
-
 	music starwars;
 	music nokia;
 	
+	int array_musica[3];
+	int *p1 = &starwars;
+	int *p2 = &nokia;
+	music *p3;
+	
+	array_musica[0] = p1;
+	array_musica[1] = p2;
 	
 	starwars.tempo = 108;
 	starwars.melody = &melody_starwars[0];
@@ -236,10 +273,13 @@ int main (void)
 	nokia.notes = sizeof(melody_nokia) / 4 / 2;
 	
 	tocando = 0;
+	mudar = 0;
+	int num_musica = 0;
   /* Insert application code here, after the board has been initialized. */
 	while(1){	
-		play_music(&starwars);
-				
-	}
-		
+		play_music(array_musica[num_musica], &num_musica);
+		if(mudar){
+			mudar = 0;
+		}
+	}		
 }
