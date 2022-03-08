@@ -171,7 +171,7 @@ int melody_starwars[] = {
   //More songs available at https://github.com/robsoncouto/arduino-songs                                                                                        
 
 
-int melody[] = {
+int melody_badinerie[] = {
   // Badinerie
   NOTE_B5,-8, NOTE_D6,16, NOTE_B5,16,
   NOTE_FS5,-8, NOTE_B5,16, NOTE_FS5,16, NOTE_D5,-8, NOTE_FS5,16, NOTE_D5,16,

@@ -63,11 +63,12 @@
 #define BUZ_IDX      30
 #define BUZ_IDX_MASK (1 << BUZ_IDX)
 
-volatile char but_flag; 
+volatile char but_flag;
 volatile int tocando;
 volatile int mudar;
 
 typedef struct{
+	char name[9];
 	int tempo;
 	int wholenote;
 	int notes;
@@ -79,6 +80,13 @@ void but_callback(void)
 	but_flag = 1;
 	
 }
+
+void draw_music_name(char name[9]){
+	//char name_str[9];
+	//sprintf(name_str, "/s", name);
+	gfx_mono_draw_string(name, 5,16, &sysfont);
+}
+
 
 void tone(int freq, int time, int *num){
 	// a freq tá em segundos e time em ms
@@ -103,11 +111,12 @@ void tone(int freq, int time, int *num){
 		}
 		if (!pio_get(BUT2_PIO, PIO_INPUT, BUT2_PIO_IDX_MASK)){
 			mudar = 1;
-			if(*num < 1){
+			if(*num < 2){
 				*num = *num + 1;
 			}
 			else{
-				*num = *num - 1;
+				*num = 0;
+				//draw_music_name(musica);
 			}
 			delay_ms(200);
 		}
@@ -121,7 +130,7 @@ void tone(int freq, int time, int *num){
 			pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
 			pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
 		}
-		if(tocando && mudar){
+		if(tocando && mudar){  // se ele tá pausado e você quer mudar pra próxima música, garante que a última nota da música anterior não vai ser tocada
 			break;
 		}
 	}
@@ -134,12 +143,12 @@ void play_music(music *musica, int *num){
 	for (int thisNote = 0; thisNote < ((*musica).notes)*2; thisNote = thisNote + 2) {
 		// calculates the duration of each note
 		int divider = (*musica).melody[thisNote + 1];
-			
+		
 		int noteDuration = ((*musica).wholenote) / abs(divider);
 		if (divider < 0) {
 			noteDuration *= 1.5; // increases the duration in half for dotted notes
 		}
-			
+		
 		if ((*musica).melody[thisNote] == 0){
 			// Wait for the specief duration before playing the next note.
 			delay_ms(noteDuration);
@@ -150,13 +159,28 @@ void play_music(music *musica, int *num){
 			if (mudar){
 				return;
 			}
-				
+			
 			// Wait for the specief duration before playing the next note.
 			delay_ms(10);
 		}
-			
+		
 	}
 	
+}
+
+
+void draw(int num_musica){
+	if (num_musica == 0){
+		gfx_mono_draw_string("             ", 0,10, &sysfont);
+		gfx_mono_draw_string("Star Wars", 0,10, &sysfont);
+	}
+	else if (num_musica == 1){
+		gfx_mono_draw_string("             ", 0,10, &sysfont);
+		gfx_mono_draw_string("Nokia", 0,10, &sysfont);
+		} else if (num_musica == 2){
+		gfx_mono_draw_string("             ", 0,10, &sysfont);
+		gfx_mono_draw_string("Badinerie", 0,10, &sysfont);
+	}
 }
 
 void io_init(void)
@@ -243,7 +267,7 @@ int main (void)
 
 	io_init();
 
-  // Init OLED
+	// Init OLED
 	gfx_mono_ssd1306_init();
 	
 	/* Disable the watchdog */
@@ -252,34 +276,46 @@ int main (void)
 
 	music starwars;
 	music nokia;
+	music badinerie;
 	
 	int array_musica[3];
 	int *p1 = &starwars;
 	int *p2 = &nokia;
-	music *p3;
+	int *p3 = &badinerie;
+	//music *p3;
 	
 	array_musica[0] = p1;
 	array_musica[1] = p2;
+	array_musica[2] = p3;
 	
+	starwars.name[9] = "Star Wars";
 	starwars.tempo = 108;
 	starwars.melody = &melody_starwars[0];
 	starwars.wholenote = (6000 * 4)/(starwars.tempo);
 	starwars.notes = sizeof(melody_starwars) / sizeof(melody_starwars[0]) / 2;
 
-
+	nokia.name[9] = "Nokia";
 	nokia.tempo = 180;
 	nokia.melody = &melody_nokia[0];
 	nokia.wholenote = (6000 * 4)/(nokia.tempo);
 	nokia.notes = sizeof(melody_nokia) / 4 / 2;
 	
+	badinerie.name[9] = "Badinerie";
+	badinerie.tempo = 120;
+	badinerie.melody = &melody_badinerie[0];
+	badinerie.wholenote = (6000 * 4)/(badinerie.tempo);
+	badinerie.notes = sizeof(melody_badinerie) / sizeof(melody_badinerie[0]) / 2;
+	
 	tocando = 0;
 	mudar = 0;
 	int num_musica = 0;
-  /* Insert application code here, after the board has been initialized. */
-	while(1){	
+	/* Insert application code here, after the board has been initialized. */
+	while(1){
+		draw(num_musica);
 		play_music(array_musica[num_musica], &num_musica);
+		//draw(num_musica);
 		if(mudar){
 			mudar = 0;
 		}
-	}		
+	}
 }
