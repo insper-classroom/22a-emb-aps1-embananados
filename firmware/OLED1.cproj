@@ -557,6 +557,12 @@
     <Folder Include="src\oled" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\aps1.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\aps1.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\ASF\sam\drivers\spi\spi.c">
       <SubType>compile</SubType>
     </Compile>
