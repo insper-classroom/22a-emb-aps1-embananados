@@ -63,7 +63,9 @@
 #define BUZ_IDX      30
 #define BUZ_IDX_MASK (1 << BUZ_IDX)
 
-volatile char but_flag;
+volatile int but1_flag;
+volatile int but2_flag;
+volatile int but3_flag;
 volatile int tocando;
 volatile int mudar;
 
@@ -75,10 +77,19 @@ typedef struct{
 	int *melody;
 } music;
 
-void but_callback(void)
+void but1_callback(void)
 {
-	but_flag = 1;
-	
+	but1_flag = 1;
+}
+
+void but2_callback(void)
+{
+	but2_flag = 1;
+}
+
+void but3_callback(void)
+{
+	but3_flag = 1;
 }
 
 void draw_music_name(char name[9]){
@@ -87,6 +98,23 @@ void draw_music_name(char name[9]){
 	gfx_mono_draw_string(name, 5,16, &sysfont);
 }
 
+void change_LED(int *num){
+	if(*num == 0){
+		pio_clear(LED1_PIO, LED1_PIO_IDX_MASK);
+		pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
+		pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
+	}
+	else if(*num ==1){
+		pio_set(LED1_PIO, LED1_PIO_IDX_MASK);
+		pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
+		pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
+	}
+	else if(*num ==2){
+		pio_set(LED1_PIO, LED1_PIO_IDX_MASK);
+		pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
+		pio_clear(LED3_PIO, LED3_PIO_IDX_MASK);
+	}
+}
 
 void tone(int freq, int time, int *num){
 	// a freq tá em segundos e time em ms
@@ -94,14 +122,19 @@ void tone(int freq, int time, int *num){
 	float T = (1.0/freq) * 1E6; //ms
 	
 	for (int i = 0; i <= n;){
+		but1_flag = 0;
 		if(tocando && !mudar){
 			pio_set(BUZ_PIO, BUZ_IDX_MASK);
+			pio_set(LED_PIO, LED_PIO_IDX_MASK);
 			delay_us(T/2);
 			pio_clear(BUZ_PIO, BUZ_IDX_MASK);
+			pio_clear(LED_PIO, LED_PIO_IDX_MASK);
 			delay_us(T/2);
+			pio_set(LED_PIO, LED_PIO_IDX_MASK);
 			i++;
-			if (!pio_get(BUT1_PIO, PIO_INPUT, BUT1_PIO_IDX_MASK)){
+			if (but1_flag){
 				tocando = 0;
+				pio_set(LED_PIO, LED_PIO_IDX_MASK);
 				delay_ms(200);
 			}
 		}
@@ -109,41 +142,46 @@ void tone(int freq, int time, int *num){
 			tocando = 1;
 			delay_ms(200);
 		}
-		if (!pio_get(BUT2_PIO, PIO_INPUT, BUT2_PIO_IDX_MASK)){
+		if (but2_flag){
 			mudar = 1;
 			if(*num < 2){
 				*num = *num + 1;
 			}
 			else{
 				*num = 0;
-				//draw_music_name(musica);
 			}
 			delay_ms(200);
+			but2_flag = 0;
 		}
-		if(*num == 0){
-			pio_clear(LED1_PIO, LED1_PIO_IDX_MASK);
-			pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
-			pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
-		}
-		else if(*num ==1){
-			pio_set(LED1_PIO, LED1_PIO_IDX_MASK);
-			pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
-			pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
-		}
+		
+		change_LED(num);
+		
 		if(tocando && mudar){  // se ele tá pausado e você quer mudar pra próxima música, garante que a última nota da música anterior não vai ser tocada
+			pio_set(LED_PIO, LED_PIO_IDX_MASK);
 			break;
 		}
 	}
 	if(mudar){
+		pio_set(LED_PIO, LED_PIO_IDX_MASK);
 		return;
 	}
 }
 
 void play_music(music *musica, int *num){
+	int x = 94;
+	int y = 12;
+	gfx_mono_generic_draw_filled_rect(x+1, y+1, 32, 9, GFX_PIXEL_CLR);
+	int x_anterior = x;
+	int divisao;
+	int resto;
+	
+	gfx_mono_generic_draw_rect(x, y, 33, 10, GFX_PIXEL_SET);
+	
+	int i = 0;
 	for (int thisNote = 0; thisNote < ((*musica).notes)*2; thisNote = thisNote + 2) {
 		// calculates the duration of each note
 		int divider = (*musica).melody[thisNote + 1];
-		
+	
 		int noteDuration = ((*musica).wholenote) / abs(divider);
 		if (divider < 0) {
 			noteDuration *= 1.5; // increases the duration in half for dotted notes
@@ -155,7 +193,11 @@ void play_music(music *musica, int *num){
 		}
 		else{
 			// we only play the note for 90% of the duration, leaving 10% as a pause
+			gfx_mono_generic_draw_filled_rect(x, y, ((double)32/musica->notes)+((double)32/musica->notes*i), 10, GFX_PIXEL_SET);
 			tone((*musica).melody[thisNote], noteDuration * 0.9, num);
+			i++;
+			
+			
 			if (mudar){
 				return;
 			}
@@ -165,6 +207,7 @@ void play_music(music *musica, int *num){
 		}
 		
 	}
+	delay_ms(100);
 	
 }
 
@@ -222,19 +265,19 @@ void io_init(void)
 	BUT1_PIO_ID,
 	BUT1_PIO_IDX_MASK,
 	PIO_IT_EDGE,
-	but_callback);
+	but1_callback);
 
 	pio_handler_set(BUT2_PIO,
 	BUT2_PIO_ID,
 	BUT2_PIO_IDX_MASK,
 	PIO_IT_EDGE,
-	but_callback);
+	but2_callback);
 	
 	pio_handler_set(BUT3_PIO,
 	BUT3_PIO_ID,
 	BUT3_PIO_IDX_MASK,
 	PIO_IT_EDGE,
-	but_callback);
+	but3_callback);
 
 	//PIO_IT_RISE_EDGE, PIO_IT_FALL_EDGE
 	// Ativa interrupção e limpa primeira IRQ gerada na ativacao
@@ -282,7 +325,6 @@ int main (void)
 	int *p1 = &starwars;
 	int *p2 = &nokia;
 	int *p3 = &badinerie;
-	//music *p3;
 	
 	array_musica[0] = p1;
 	array_musica[1] = p2;
@@ -313,7 +355,6 @@ int main (void)
 	while(1){
 		draw(num_musica);
 		play_music(array_musica[num_musica], &num_musica);
-		//draw(num_musica);
 		if(mudar){
 			mudar = 0;
 		}
