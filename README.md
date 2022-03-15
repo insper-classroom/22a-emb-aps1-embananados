@@ -31,7 +31,11 @@ foi concluído! Isso gerará um PR no classroom que será avaliado pela equipe.
 
 ## Imagem da montagem :camera_flash::
 
-TODO: Inserir imagem do sistema montado
+![foto_montagem](https://user-images.githubusercontent.com/62647438/158377963-65ad2f9a-d91f-4b8d-ae89-054cf75126f7.jpeg)
+
+![foto_montagem2](https://user-images.githubusercontent.com/62647438/158377994-96d5d4be-df68-45a7-badd-d758d49227fb.jpeg)
+
+Obs: O jumper laranja faz ligação com o pino energizado e o jumper preto faz ligação com o GND.
 
 Como pode ser visto, a parte positiva do Buzzer foi conectada no pino PD30, enquanto a outra parte foi conectada no pino do GND (Ground) - que fica acima do pino PD30, porém
 no primeiro nível de pinos. Assim, basta utilizar dois jumpers fêmea-fêmea e conectar as saídas dos pinos no polo positivo e negativo do buzzer. Feito isso, basta rodar o código que o programa estará funcionando.
