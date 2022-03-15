@@ -172,7 +172,7 @@ void tone(int freq, int time, int *num){
 void play_music(music *musica, int *num){
 	int x = 94;
 	int y = 12;
-	int i = 0;
+	int i = 1;
 
 	gfx_mono_generic_draw_filled_rect(x+1, y+1, 32, 9, GFX_PIXEL_CLR);
 	gfx_mono_generic_draw_rect(x, y, 33, 10, GFX_PIXEL_SET);
