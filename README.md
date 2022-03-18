@@ -42,7 +42,7 @@ no primeiro nível de pinos. Assim, basta utilizar dois jumpers fêmea-fêmea e 
  
 ## Vídeo do projeto :film_strip::
 
-TODO: Inserir link para vídeo do projeto funcionando
+[![APS1 de Embarcados](https://img.youtube.com/vi/fg6qixo6t4E/0.jpg)](https://youtu.be/fg6qixo6t4E "APS1 de Embarcados")
 
 * Para utilizar o projeto, após rodar o programa, basta apertar o botão 1 para tocar e, uma vez que estiver tocando, basta apertá-lo outra vez para pausar.
 * Para trocar de música, basta apertar o botão 2, e conforme as músicas mudam, os LED's 1,2 e 3 indicarão visualmente qual música está sendo selecionada:
@@ -62,7 +62,7 @@ melodias. Sendo assim, como são três músicas, foram montados três arrays de 
 * Já no aps1.h foram definidos todos os botões, LED's e o buzzer utilizado para conseguir utilizar os pinos e botões configurados. Além disso, nesse mesmo
 arquivo, os protótipos das funções usadas no trabalho foram definidos e a struct das músicas também.
 
-* No aps.c por sua vez, as funções declaradas no aps1.h foram escritas, ou seja, todas as funções utilizadas no trabalho estão lá. Desde os callsbacks's até as funções para
+* No aps1.c por sua vez, as funções declaradas no aps1.h foram escritas, ou seja, todas as funções utilizadas no trabalho estão lá. Desde os callsbacks's até as funções para
 tocar as músicas.
 
 * Por fim, no arquivo main.c estão os vetores de structs (ponteiros) e a função principal main() que irá rodar todas as outras funções que foram definidas no aps.c para o 
@@ -77,4 +77,43 @@ As músicas utilizadas na APS são:
 - Nokia Ringtone
 - Badinerie - Bach 
 
-Todas as músicas foram retiradas do repositório que pode ser encontrado no link a seguir: https://github.com/robsoncouto/arduino-songs/ .
+Todas as músicas foram retiradas do repositório que pode ser encontrado no link a seguir: https://github.com/robsoncouto/arduino-songs/ . Além disso, a função
+play_music que se encontra na aps1.c foi adaptada desse mesmo repositório citado anteriormente. 
+
+## Checagem dos conceitos feitos:
+
+### C
+- [x] Repositório contém README.mdcom ligações elétrica e passos de como usar o projeto, assim como link para o vídeo e referência a outros códigos
+- [x] Funcionalidade de PAUSE/ PLAY
+- [x] Botão de seleção musical
+- [x] Indicação visual de qual música foi selecionada
+- [x] Reproduz duas músicas (de forma inteligível)
+- [x] Utiliza músicas do repositório indicado
+- [x] Fecha todos os issues que forem abertos pela equipe
+
+### C +
+- [x] LED piscando de acordo com a música (adicionar um LED ao projeto)
+
+### B
+- [x] Música separadas em arquivos .h
+- [x] Utiliza struct para organizar as músicas
+- [x] Código organizado em funções e que recebem struct contendo música
+- [x] Exibir o nome da música no OLED
+- [] Fecha todos os issues que forem abertos após a entrega
+
+### B +
+
+- [x] README.md explica como o software foi estruturado
+- [] Faz uso de #define sempre que possível (alterar algumas coisas)
+- [x] Terceira música
+- [x] Exibir uma barra com a indicação do progresso da música
+
+### A
+
+- [x] Utiliza interrupção nos botões
+- [x] Cria um arquivo .c .h com as funções de reprodução musical
+
+### A +
+
+- [x] Músicas organizadas em vetores de structs (ponteiros)
+
