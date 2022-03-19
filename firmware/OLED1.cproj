@@ -575,7 +575,16 @@
     <Compile Include="src\config\conf_sysfont.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="src\musicas.h">
+    <Compile Include="src\starwars.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\nokia.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\badinerie.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\notas.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="src\oled\gfx_mono.h">

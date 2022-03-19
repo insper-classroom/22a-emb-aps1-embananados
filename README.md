@@ -70,9 +70,9 @@ Assim, basta utilizar dois jumpers fêmea-fêmea e conectar as saídas dos pinos
 
 ## Como o software foi estruturado :file_folder::	
 
-O software foi estruturado em quatro arquivos: `musicas.h`, `aps1.h`, `aps1.c` e `main.c`. 
+O software foi estruturado em sete arquivos: `notas.h`, `badinerie.h`, `nokia.h`, `starwars.h`, `aps1.h`, `aps1.c` e `main.c`. 
 
- &nbsp; &nbsp; :heavy_check_mark: No arquivo `musicas.h` foram definidas as notas e os arrays de cada conjunto de notas, as melodias. Sendo assim, como são três músicas, foram montados três arrays de melodia.
+ &nbsp; &nbsp; :heavy_check_mark: No arquivo `notas.h` foram definidas as notas e os arrays de cada conjunto de notas foram definidos nos aquivos `badinerie.h`, `nokia.h` e `starwars.h`, que contém as melodias.
 
  &nbsp; &nbsp; :heavy_check_mark: Já no `aps1.h` foram definidos todos os botões, LED's e o buzzer utilizado para conseguir utilizar os pinos e botões configurados. Além disso, nesse mesmo arquivo, outros #defines foram feitos para as constantes usadas, protótipos das funções usadas no trabalho foram definidos e a struct das músicas também.
 

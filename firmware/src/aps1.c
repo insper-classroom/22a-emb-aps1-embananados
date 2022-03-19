@@ -166,7 +166,7 @@ void play_music(music *musica, int *num){
 		}
 		else{
 			// we only play the note for 90% of the duration, leaving 10% as a pause
-			gfx_mono_generic_draw_filled_rect(x, y, ((double)tamanho_barra_x/musica->notes)+((double)tamanho_barra_x/musica->notes*i), tamanho_barra_y+1, GFX_PIXEL_SET);
+			gfx_mono_generic_draw_filled_rect(x, y, ((double)tamanho_barra_x/musica->notes*i), tamanho_barra_y+1, GFX_PIXEL_SET);
 			tone((*musica).melody[thisNote], noteDuration * 0.9, num);
 			i++;
 			
@@ -174,7 +174,7 @@ void play_music(music *musica, int *num){
 			if (mudar){
 				return;
 			}
-			// Wait for the specief duration before playing the next note.
+			// Wait for the specified duration before playing the next note.
 			delay_ms(10);
 		}
 		

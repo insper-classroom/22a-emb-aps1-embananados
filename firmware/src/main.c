@@ -3,7 +3,9 @@
 #include "gfx_mono_text.h"
 #include "sysfont.h"
 #include "aps1.h"
-#include "musicas.h"
+#include "badinerie.h"
+#include "nokia.h"
+#include "starwars.h"
 
 
 int main (void)
