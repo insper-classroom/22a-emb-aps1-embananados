@@ -32,81 +32,57 @@ void but3_callback(void)
 	but3_flag = 1;
 }
 
+void configure_pio_output(Pio *pio, const pio_type_t ul_type, const uint32_t ul_mask, const uint32_t ul_attribute, uint32_t ul_id){
+	pmc_enable_periph_clk(ul_id);
+	pio_configure(pio, ul_type, ul_mask, ul_attribute);
+}
+
+void configure_pio_input(Pio *pio, const pio_type_t ul_type, const uint32_t ul_mask, const uint32_t ul_attribute, uint32_t ul_id){
+	pmc_enable_periph_clk(ul_id);
+	pio_configure(pio, ul_type, ul_mask, ul_attribute);
+	pio_set_debounce_filter(pio, ul_mask, 60);
+}
+
+void configure_interruption(Pio *pio, uint32_t ul_id, const uint32_t ul_mask,  uint32_t ul_attr, void (*p_handler) (uint32_t, uint32_t)){
+	pio_handler_set(pio, ul_id, ul_mask , ul_attr, p_handler);
+	pio_enable_interrupt(pio, ul_mask);
+	pio_get_interrupt_status(pio);
+	NVIC_EnableIRQ(ul_id);
+	NVIC_SetPriority(ul_id, 4); // Prioridade 4
+}
+
+void init_structs(music *musica, const char name[9], int tempo, int *melody_vec, int size_array, int size_array_element){
+	musica->name[9] = name;
+	musica->tempo = tempo;
+	musica->melody = &melody_vec[0];
+	musica->wholenote = (6000*4)/(musica->tempo);
+	musica->notes = size_array / size_array_element / 2;
+}
 
 void io_init(void)
 {
-	pmc_enable_periph_clk(BUZ_PIO_ID);
-	pio_configure(BUZ_PIO, PIO_OUTPUT_0, BUZ_IDX_MASK, PIO_DEFAULT);
+	// Configura Buzzer
+	configure_pio_output(BUZ_PIO, PIO_OUTPUT_0, BUZ_IDX_MASK, PIO_DEFAULT, BUZ_PIO_ID);
 
-	// Configura led
-	pmc_enable_periph_clk(LED1_PIO_ID);
-	pio_configure(LED1_PIO, PIO_OUTPUT_0, LED1_PIO_IDX_MASK, PIO_DEFAULT);
-	
-	pmc_enable_periph_clk(LED2_PIO_ID);
-	pio_configure(LED2_PIO, PIO_OUTPUT_0, LED2_PIO_IDX_MASK, PIO_DEFAULT);
-	
-	pmc_enable_periph_clk(LED3_PIO_ID);
-	pio_configure(LED3_PIO, PIO_OUTPUT_0, LED3_PIO_IDX_MASK, PIO_DEFAULT);
+	// Configura LED1
+	configure_pio_output(LED1_PIO, PIO_OUTPUT_0, LED1_PIO_IDX_MASK, PIO_DEFAULT, LED1_PIO_ID);
 
-	// Inicializa clock do perifï¿½rico PIO responsavel pelo botao
-	pmc_enable_periph_clk(BUT1_PIO_ID);
-	pmc_enable_periph_clk(BUT2_PIO_ID);
-	pmc_enable_periph_clk(BUT3_PIO_ID);
+	// Configura LED2
+	configure_pio_output(LED2_PIO, PIO_OUTPUT_0, LED2_PIO_IDX_MASK, PIO_DEFAULT, LED2_PIO_ID);
 
-	// Configura PIO para lidar com o pino do botï¿½o como entrada
-	// com pull-up
-	//pio_configure(BUT_PIO, PIO_INPUT, BUT_IDX_MASK, PIO_PULLUP);
-	pio_configure(BUT1_PIO, PIO_INPUT, BUT1_PIO_IDX_MASK, PIO_PULLUP | PIO_DEBOUNCE);
-	pio_set_debounce_filter(BUT1_PIO, BUT1_PIO_IDX_MASK, 60);
+	// Configura LED3
+	configure_pio_output(LED3_PIO, PIO_OUTPUT_0, LED3_PIO_IDX_MASK, PIO_DEFAULT, LED3_PIO_ID);
 
-	pio_configure(BUT2_PIO, PIO_INPUT, BUT2_PIO_IDX_MASK, PIO_PULLUP | PIO_DEBOUNCE);
-	pio_set_debounce_filter(BUT2_PIO, BUT2_PIO_IDX_MASK, 60);
-	
-	pio_configure(BUT3_PIO, PIO_INPUT, BUT3_PIO_IDX_MASK, PIO_PULLUP | PIO_DEBOUNCE);
-	pio_set_debounce_filter(BUT3_PIO, BUT3_PIO_IDX_MASK, 60);
 
-	// Configura interrupï¿½ï¿½o no pino referente ao botao e associa
-	// funï¿½ï¿½o de callback caso uma interrupï¿½ï¿½o for gerada
-	// a funï¿½ï¿½o de callback ï¿½ a: but_callback()
-	pio_handler_set(BUT1_PIO,
-	BUT1_PIO_ID,
-	BUT1_PIO_IDX_MASK,
-	PIO_IT_FALL_EDGE,
-	but1_callback);
+	// Configura botões e interrupções
+	
+	configure_pio_input(BUT1_PIO, PIO_INPUT, BUT1_PIO_IDX_MASK, PIO_PULLUP|PIO_DEBOUNCE, BUT1_PIO_ID);
+	configure_pio_input(BUT2_PIO, PIO_INPUT, BUT2_PIO_IDX_MASK, PIO_PULLUP|PIO_DEBOUNCE, BUT2_PIO_ID);
+	configure_pio_input(BUT3_PIO, PIO_INPUT, BUT3_PIO_IDX_MASK, PIO_PULLUP|PIO_DEBOUNCE, BUT3_PIO_ID);
 
-	pio_handler_set(BUT2_PIO,
-	BUT2_PIO_ID,
-	BUT2_PIO_IDX_MASK,
-	PIO_IT_EDGE,
-	but2_callback);
-	
-	pio_handler_set(BUT3_PIO,
-	BUT3_PIO_ID,
-	BUT3_PIO_IDX_MASK,
-	PIO_IT_EDGE,
-	but3_callback);
-
-	//PIO_IT_RISE_EDGE, PIO_IT_FALL_EDGE
-	// Ativa interrupï¿½ï¿½o e limpa primeira IRQ gerada na ativacao
-	pio_enable_interrupt(BUT1_PIO, BUT1_PIO_IDX_MASK);
-	pio_get_interrupt_status(BUT1_PIO);
-
-	pio_enable_interrupt(BUT2_PIO, BUT2_PIO_IDX_MASK);
-	pio_get_interrupt_status(BUT2_PIO);
-	
-	pio_enable_interrupt(BUT3_PIO, BUT3_PIO_IDX_MASK);
-	pio_get_interrupt_status(BUT3_PIO);
-	
-	// Configura NVIC para receber interrupcoes do PIO do botao
-	// com prioridade 4 (quanto mais prï¿½ximo de 0 maior)
-	NVIC_EnableIRQ(BUT1_PIO_ID);
-	NVIC_SetPriority(BUT1_PIO_ID, 4); // Prioridade 4
-	
-	NVIC_EnableIRQ(BUT2_PIO_ID);
-	NVIC_SetPriority(BUT2_PIO_ID, 4); // Prioridade 4
-	
-	NVIC_EnableIRQ(BUT3_PIO_ID);
-	NVIC_SetPriority(BUT3_PIO_ID, 4); // Prioridade 4
+	configure_interruption(BUT1_PIO, BUT1_PIO_ID, BUT1_PIO_IDX_MASK, PIO_IT_FALL_EDGE, but1_callback);
+	configure_interruption(BUT2_PIO, BUT2_PIO_ID, BUT2_PIO_IDX_MASK, PIO_IT_EDGE, but2_callback);
+	configure_interruption(BUT3_PIO, BUT3_PIO_ID, BUT3_PIO_IDX_MASK, PIO_IT_EDGE, but3_callback);
 }
 
 
@@ -170,12 +146,10 @@ void tone(int freq, int time, int *num){
 }
 
 void play_music(music *musica, int *num){
-	int x = 94;
-	int y = 12;
 	int i = 1;
 
-	gfx_mono_generic_draw_filled_rect(x+1, y+1, 32, 9, GFX_PIXEL_CLR);
-	gfx_mono_generic_draw_rect(x, y, 33, 10, GFX_PIXEL_SET);
+	gfx_mono_generic_draw_filled_rect(x+1, y+1, tamanho_barra_x, tamanho_barra_y, GFX_PIXEL_CLR);
+	gfx_mono_generic_draw_rect(x, y, tamanho_barra_x+1, tamanho_barra_y+1, GFX_PIXEL_SET);
 	
 	for (int thisNote = 0; thisNote < ((*musica).notes)*2; thisNote = thisNote + 2) {
 		// calculates the duration of each note
@@ -192,7 +166,7 @@ void play_music(music *musica, int *num){
 		}
 		else{
 			// we only play the note for 90% of the duration, leaving 10% as a pause
-			gfx_mono_generic_draw_filled_rect(x, y, ((double)32/musica->notes)+((double)32/musica->notes*i), 10, GFX_PIXEL_SET);
+			gfx_mono_generic_draw_filled_rect(x, y, ((double)tamanho_barra_x/musica->notes)+((double)tamanho_barra_x/musica->notes*i), tamanho_barra_y+1, GFX_PIXEL_SET);
 			tone((*musica).melody[thisNote], noteDuration * 0.9, num);
 			i++;
 			
@@ -200,7 +174,6 @@ void play_music(music *musica, int *num){
 			if (mudar){
 				return;
 			}
-			
 			// Wait for the specief duration before playing the next note.
 			delay_ms(10);
 		}

@@ -68,6 +68,15 @@
 #define BUZ_IDX      30
 #define BUZ_IDX_MASK (1 << BUZ_IDX)
 
+#define x 94
+#define y 12
+#define tamanho_barra_x 32
+#define tamanho_barra_y 9
+
+#define name_starwars "Star Wars"
+#define name_nokia "Nokia"
+#define name_badinerie "Badinerie"
+
 volatile int but1_flag;
 volatile int but2_flag;
 volatile int but3_flag;
@@ -82,12 +91,14 @@ typedef struct{
 	int *melody;
 } music;
 
+void configure_pio_output(Pio *pio, const pio_type_t ul_type, const uint32_t ul_mask, const uint32_t ul_attribute, uint32_t ul_id);
+void configure_pio_input(Pio *pio, const pio_type_t ul_type, const uint32_t ul_mask, const uint32_t ul_attribute, uint32_t ul_id);
+void configure_interruption(Pio *pio, uint32_t ul_id, const uint32_t ul_mask,  uint32_t ul_attr, void (*p_handler) (uint32_t, uint32_t));
+void init_structs(music *musica, const char name[9], int tempo, int *melody_vec, int size_array, int size_array_element);
 void io_init(void);
 void change_LED(int *num);
 void tone(int freq, int time, int *num);
 void play_music(music *musica, int *num);
 void draw(int num_musica);
-
-
 
 #endif /* APS1_H_ */
