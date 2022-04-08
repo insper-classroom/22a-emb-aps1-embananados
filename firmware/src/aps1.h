@@ -73,10 +73,6 @@
 #define tamanho_barra_x 32
 #define tamanho_barra_y 9
 
-#define name_starwars "Star Wars"
-#define name_nokia "Nokia"
-#define name_badinerie "Badinerie"
-
 volatile int but1_flag;
 volatile int but2_flag;
 volatile int but3_flag;
@@ -99,6 +95,6 @@ void io_init(void);
 void change_LED(int num);
 void tone(int freq, int time, int *num);
 void play_music(music *musica, int *num);
-void draw(int num_musica);
+void draw(music *musica);
 
 #endif /* APS1_H_ */

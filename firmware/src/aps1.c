@@ -10,6 +10,7 @@
 #include "gfx_mono_text.h"
 #include "sysfont.h"
 #include "aps1.h"
+#include "string.h"
 
 void but1_callback(void)
 {
@@ -46,7 +47,7 @@ void configure_interruption(Pio *pio, uint32_t ul_id, const uint32_t ul_mask,  u
 }
 
 void init_structs(music *musica, const char name[9], int tempo, int *melody_vec, int size_array, int size_array_element){
-	musica->name[9] = name;
+	strcpy(musica->name, name);
 	musica->tempo = tempo;
 	musica->melody = &melody_vec[0];
 	musica->wholenote = (6000*4)/(musica->tempo);
@@ -160,7 +161,7 @@ void play_music(music *musica, int *num){
 		}
 		else{
 			// we only play the note for 90% of the duration, leaving 10% as a pause
-			gfx_mono_generic_draw_filled_rect(x, y, ((double)tamanho_barra_x/musica->notes*i), tamanho_barra_y+1, GFX_PIXEL_SET);
+			gfx_mono_generic_draw_filled_rect(x, y, ((double)tamanho_barra_x/musica->notes*i)+1, tamanho_barra_y+1, GFX_PIXEL_SET);
 			tone((*musica).melody[thisNote], noteDuration * 0.9, num);
 			i++;
 			
@@ -178,16 +179,7 @@ void play_music(music *musica, int *num){
 }
 
 
-void draw(int num_musica){
-	if (num_musica == 0){
-		gfx_mono_draw_string("             ", 0,10, &sysfont);
-		gfx_mono_draw_string("Star Wars", 0,10, &sysfont);
-	}
-	else if (num_musica == 1){
-		gfx_mono_draw_string("             ", 0,10, &sysfont);
-		gfx_mono_draw_string("Nokia", 0,10, &sysfont);
-		} else if (num_musica == 2){
-		gfx_mono_draw_string("             ", 0,10, &sysfont);
-		gfx_mono_draw_string("Badinerie", 0,10, &sysfont);
-	}
+void draw(music *musica){
+	gfx_mono_draw_string("             ", 0,10, &sysfont);
+	gfx_mono_draw_string(musica->name, 0,10, &sysfont);
 }

@@ -6,6 +6,7 @@
 #include "badinerie.h"
 #include "nokia.h"
 #include "starwars.h"
+#include "string.h"
 
 
 int main (void)
@@ -29,15 +30,15 @@ int main (void)
 	
 	music *array_musica[3] = {&starwars, &nokia, &badinerie};
 	
-	init_structs(&starwars, name_starwars, 108, melody_starwars, sizeof(melody_starwars), sizeof(melody_starwars[0]));
-	init_structs(&nokia, name_nokia, 180, melody_nokia, sizeof(melody_nokia), sizeof(melody_nokia[0]));
-	init_structs(&badinerie, name_badinerie, 120, melody_badinerie, sizeof(melody_badinerie), sizeof(melody_badinerie[0]));
+	init_structs(&starwars, "Star Wars", 108, melody_starwars, sizeof(melody_starwars), sizeof(melody_starwars[0]));
+	init_structs(&nokia, "Nokia", 180, melody_nokia, sizeof(melody_nokia), sizeof(melody_nokia[0]));
+	init_structs(&badinerie, "Badinerie", 120, melody_badinerie, sizeof(melody_badinerie), sizeof(melody_badinerie[0]));
 	
 	but1_flag = 0;
 	mudar = 0;
 	int num_musica = 0;
 	while(1){
-		draw(num_musica);
+		draw(array_musica[num_musica]);
 		play_music(array_musica[num_musica], &num_musica);
 		if(mudar){
 			mudar = 0;
