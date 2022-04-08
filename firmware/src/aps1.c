@@ -169,7 +169,7 @@ void play_music(music *musica, int *num){
 				return;
 			}
 			// Wait for the specified duration before playing the next note.
-			delay_ms(noteDuration * 0.1);
+			delay_ms(noteDuration * 0.4);
 		}
 		
 	}
