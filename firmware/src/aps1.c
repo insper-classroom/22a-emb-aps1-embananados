@@ -13,13 +13,7 @@
 
 void but1_callback(void)
 {
-	if(!but1_flag){
-		but1_flag = 1;
-	}
-	else{
-		but1_flag = 0;
-	}
-
+	but1_flag =! but1_flag;
 }
 
 void but2_callback(void)
