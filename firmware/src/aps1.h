@@ -96,7 +96,7 @@ void configure_pio_input(Pio *pio, const pio_type_t ul_type, const uint32_t ul_m
 void configure_interruption(Pio *pio, uint32_t ul_id, const uint32_t ul_mask,  uint32_t ul_attr, void (*p_handler) (uint32_t, uint32_t));
 void init_structs(music *musica, const char name[9], int tempo, int *melody_vec, int size_array, int size_array_element);
 void io_init(void);
-void change_LED(int *num);
+void change_LED(int num);
 void tone(int freq, int time, int *num);
 void play_music(music *musica, int *num);
 void draw(int num_musica);

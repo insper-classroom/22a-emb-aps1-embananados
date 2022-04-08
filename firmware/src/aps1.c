@@ -80,18 +80,18 @@ void io_init(void)
 }
 
 
-void change_LED(int *num){
-	if(*num == 0){
+void change_LED(int num){
+	if(num == 0){
 		pio_clear(LED1_PIO, LED1_PIO_IDX_MASK);
 		pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
 		pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
 	}
-	else if(*num ==1){
+	else if(num ==1){
 		pio_set(LED1_PIO, LED1_PIO_IDX_MASK);
 		pio_clear(LED2_PIO, LED2_PIO_IDX_MASK);
 		pio_set(LED3_PIO, LED3_PIO_IDX_MASK);
 	}
-	else if(*num ==2){
+	else if(num ==2){
 		pio_set(LED1_PIO, LED1_PIO_IDX_MASK);
 		pio_set(LED2_PIO, LED2_PIO_IDX_MASK);
 		pio_clear(LED3_PIO, LED3_PIO_IDX_MASK);
@@ -126,7 +126,7 @@ void tone(int freq, int time, int *num){
 			but2_flag = 0;
 		}
 		
-		change_LED(num);
+		change_LED(*num);
 		
 		if(but1_flag && mudar){  // se ele tivesse pausado e você quer mudar pra próxima música, garante que a última nota da música anterior não vai ser tocada
 			pio_set(LED_PIO, LED_PIO_IDX_MASK);
