@@ -27,14 +27,7 @@ int main (void)
 	music nokia;
 	music badinerie;
 	
-	int array_musica[3];
-	int *p1 = &starwars;
-	int *p2 = &nokia;
-	int *p3 = &badinerie;
-	
-	array_musica[0] = p1;
-	array_musica[1] = p2;
-	array_musica[2] = p3;
+	music *array_musica[3] = {&starwars, &nokia, &badinerie};
 	
 	init_structs(&starwars, name_starwars, 108, melody_starwars, sizeof(melody_starwars), sizeof(melody_starwars[0]));
 	init_structs(&nokia, name_nokia, 180, melody_nokia, sizeof(melody_nokia), sizeof(melody_nokia[0]));
