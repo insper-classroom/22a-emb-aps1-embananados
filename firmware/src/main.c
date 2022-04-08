@@ -37,7 +37,7 @@ int main (void)
 	mudar = 0;
 	int num_musica = 0;
 	while(1){
-		draw(num_musica);
+		draw(*array_musica[num_musica]);
 		play_music(array_musica[num_musica], &num_musica);
 		if(mudar){
 			mudar = 0;

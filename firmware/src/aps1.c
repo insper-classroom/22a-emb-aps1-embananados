@@ -10,6 +10,7 @@
 #include "gfx_mono_text.h"
 #include "sysfont.h"
 #include "aps1.h"
+#include <string.h>
 
 void but1_callback(void)
 {
@@ -46,8 +47,13 @@ void configure_interruption(Pio *pio, uint32_t ul_id, const uint32_t ul_mask,  u
 }
 
 void init_structs(music *musica, const char name[9], int tempo, int *melody_vec, int size_array, int size_array_element){
-	musica->name[9] = name;
+	for(int i= 0; i<sizeof(musica->name); i++){
+		musica->name[i] = 0;	
+	}
 	musica->tempo = tempo;
+	for(int i= 0; i<strlen(name); i++){
+		musica->name[i] = name[i];	
+	}
 	musica->melody = &melody_vec[0];
 	musica->wholenote = (6000*4)/(musica->tempo);
 	musica->notes = size_array / size_array_element / 2;
@@ -178,16 +184,7 @@ void play_music(music *musica, int *num){
 }
 
 
-void draw(int num_musica){
-	if (num_musica == 0){
-		gfx_mono_draw_string("             ", 0,10, &sysfont);
-		gfx_mono_draw_string("Star Wars", 0,10, &sysfont);
-	}
-	else if (num_musica == 1){
-		gfx_mono_draw_string("             ", 0,10, &sysfont);
-		gfx_mono_draw_string("Nokia", 0,10, &sysfont);
-		} else if (num_musica == 2){
-		gfx_mono_draw_string("             ", 0,10, &sysfont);
-		gfx_mono_draw_string("Badinerie", 0,10, &sysfont);
-	}
+void draw(music musica){
+	gfx_mono_draw_string("             ", 0,10, &sysfont);
+	gfx_mono_draw_string(musica.name, 0,10, &sysfont);
 }

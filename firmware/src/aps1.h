@@ -99,6 +99,6 @@ void io_init(void);
 void change_LED(int num);
 void tone(int freq, int time, int *num);
 void play_music(music *musica, int *num);
-void draw(int num_musica);
+void draw(music musica);
 
 #endif /* APS1_H_ */
